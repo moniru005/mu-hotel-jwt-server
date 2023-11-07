@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId, MaxKey } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -9,10 +9,12 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    origin: 'http://localhost:5173/',
+app.use(
+    cors({
+    origin: 'http://localhost:5173',
     credentials: true
-}));
+})
+);
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t2hcl8v.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -32,6 +34,7 @@ async function run() {
 
     const roomCollection = client.db("murnHotel").collection("rooms");
     const bookingCollection = client.db("murnHotel").collection("bookings");
+    const subscriberCollection = client.db("murnHotel").collection("subscribers");
 
     // middleware
     const gateman = (req, res, next) => {
@@ -57,15 +60,16 @@ async function run() {
     };
 
     //JWT Auth API
-    app.post("/token", gateman, async (req, res) => {
+    app.post("/jwt", (req, res) => {
       const user = req.body;
+      console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "10h",
       });
       res
         .cookie("token", token, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: "none",
         })
         .send({ success: true });
@@ -111,6 +115,18 @@ async function run() {
       const result = await bookingCollection.find(query).toArray();
       res.send(result);
     });
+
+    //subscribe API
+    app.post('/subscriber', async(req, res) =>{
+        const user = req.body;
+        const result = await subscriberCollection.insertOne(user);
+        res.send(result);
+
+    })
+    app.get('/subscriber', async(req, res) =>{
+        const result = await subscriberCollection.find().toArray();
+        res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

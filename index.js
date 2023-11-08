@@ -75,11 +75,34 @@ async function run() {
         .send({ success: true });
     });
 
+
     //Bookings Related API
     app.get("/rooms", gateman, async (req, res) => {
-      const rooms = await roomCollection.find().toArray();
+        let queryObj = {}
+        let sortObj = {}
+
+        const category = req.query.category;
+        const sortField = req.query.sortField;
+        const sortOrder = req.query.sortOrder;
+        
+        if(category){
+            queryObj.category = category
+        }
+
+        if(sortField && sortOrder){
+            sortObj[sortField] = sortOrder
+        }
+
+      const rooms = await roomCollection.find(queryObj).sort(sortObj).toArray();
       res.send(rooms);
     });
+
+    // app.get("/rooms/:id", gateman, async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = {_id: new ObjectId(id)}
+    //   const result = roomCollection.findOne(query);
+    //   res.send(result);
+    // });
 
     app.post("/user/create-bookings", async (req, res) => {
       // console.log(req.body);

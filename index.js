@@ -77,7 +77,7 @@ async function run() {
 
 
     //Bookings Related API
-    app.get("/rooms", gateman, async (req, res) => {
+    app.get("/rooms",  async (req, res) => {
         let queryObj = {}
         let sortObj = {}
 
@@ -97,12 +97,12 @@ async function run() {
       res.send(rooms);
     });
 
-    // app.get("/rooms/:id", gateman, async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId(id)}
-    //   const result = roomCollection.findOne(query);
-    //   res.send(result);
-    // });
+    app.get("/rooms/:id", gateman, async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = roomCollection.findOne(query);
+      res.send(result);
+    });
 
     app.post("/user/create-bookings", async (req, res) => {
       // console.log(req.body);
@@ -138,6 +138,22 @@ async function run() {
       const result = await bookingCollection.find(query).toArray();
       res.send(result);
     });
+
+    app.patch('/user/booking/:id', async(req, res) =>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedBooking = req.body;
+      console.log(updatedBooking);
+      const updateDoc = {
+        $set: {
+          status: updatedBooking.status
+        },
+      }
+      const result = await bookingCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+    
 
     //subscribe API
     app.post('/subscriber', async(req, res) =>{

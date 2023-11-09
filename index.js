@@ -11,7 +11,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
     cors({
-    origin: 'http://localhost:5173',
+    origin: [
+      'https://hotel-jwt-client.web.app', 'http://localhost:5173'
+    ],
     credentials: true
 })
 );
@@ -30,7 +32,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+     client.connect();
 
     const roomCollection = client.db("murnHotel").collection("rooms");
     const bookingCollection = client.db("murnHotel").collection("bookings");

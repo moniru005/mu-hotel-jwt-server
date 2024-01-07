@@ -37,6 +37,8 @@ async function run() {
     const roomCollection = client.db("murnHotel").collection("rooms");
     const bookingCollection = client.db("murnHotel").collection("bookings");
     const subscriberCollection = client.db("murnHotel").collection("subscribers");
+    const contactsCollection = client.db("murnHotel").collection("contacts");
+    
 
     // middleware
     const gateman = (req, res, next) => {
@@ -166,6 +168,18 @@ async function run() {
     })
     app.get('/subscriber', async(req, res) =>{
         const result = await subscriberCollection.find().toArray();
+        res.send(result);
+    })
+
+    //contact API
+    app.post('/contacts', async(req, res) =>{
+        const user = req.body;
+        const result = await contactsCollection.insertOne(user);
+        res.send(result);
+
+    })
+    app.get('/contacts', async(req, res) =>{
+        const result = await contactsCollection.find().toArray();
         res.send(result);
     })
 
